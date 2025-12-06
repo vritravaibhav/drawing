@@ -17,11 +17,13 @@ class WhiteboardBloc extends Bloc<WhiteboardEvent, WhiteboardState> {
     on<DrawingCleared>(_onDrawingCleared);
     on<DrawingUndone>(_onDrawingUndone);
     on<DrawingRedone>(_onDrawingRedone);
+    on<EraseModeToggled>(_onEraseModeToggled);
   }
 
   void _onPenColorChanged(
       PenColorChanged event, Emitter<WhiteboardState> emit) {
-    emit(state.copyWith(penColor: event.color));
+        
+    emit(state.copyWith(penColor: event.color, isErasing: false));
   }
 
   void _onStrokeWidthChanged(
@@ -32,7 +34,7 @@ class WhiteboardBloc extends Bloc<WhiteboardEvent, WhiteboardState> {
   void _onDrawingStarted(DrawingStarted event, Emitter<WhiteboardState> emit) {
     final newDrawing = Drawing(
       points: [event.position],
-      color: state.penColor,
+      color: state.isErasing ? Colors.white : state.penColor,
       strokeWidth: state.strokeWidth,
     );
     emit(state.copyWith(
@@ -48,7 +50,8 @@ class WhiteboardBloc extends Bloc<WhiteboardEvent, WhiteboardState> {
       final lastDrawing = state.drawings.last;
       final newPoints = [...lastDrawing.points, event.position];
       final updatedDrawing = lastDrawing.copyWith(points: newPoints);
-      final newDrawings = [...state.drawings]..[state.drawings.length - 1] = updatedDrawing;
+      final newDrawings = [...state.drawings]
+        ..[state.drawings.length - 1] = updatedDrawing;
       emit(state.copyWith(drawings: newDrawings));
     }
   }
@@ -75,11 +78,17 @@ class WhiteboardBloc extends Bloc<WhiteboardEvent, WhiteboardState> {
   void _onDrawingRedone(DrawingRedone event, Emitter<WhiteboardState> emit) {
     if (state.undoneDrawings.isNotEmpty) {
       final lastUndoneDrawing = state.undoneDrawings.last;
-      final newUndoneDrawings = state.undoneDrawings.sublist(0, state.undoneDrawings.length - 1);
+      final newUndoneDrawings =
+          state.undoneDrawings.sublist(0, state.undoneDrawings.length - 1);
       emit(state.copyWith(
         drawings: [...state.drawings, lastUndoneDrawing],
         undoneDrawings: newUndoneDrawings,
       ));
     }
+  }
+
+  void _onEraseModeToggled(
+      EraseModeToggled event, Emitter<WhiteboardState> emit) {
+    emit(state.copyWith(isErasing: !state.isErasing));
   }
 }

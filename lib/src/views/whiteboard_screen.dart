@@ -10,6 +10,7 @@ class WhiteboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Whiteboard'),
         actions: [
@@ -34,14 +35,14 @@ class WhiteboardScreen extends StatelessWidget {
         builder: (context, state) {
           return GestureDetector(
             onPanStart: (details) {
-              context
-                  .read<WhiteboardBloc>()
-                  .add(DrawingStarted(details.localPosition));
+              context.read<WhiteboardBloc>().add(
+                DrawingStarted(details.localPosition),
+              );
             },
             onPanUpdate: (details) {
-              context
-                  .read<WhiteboardBloc>()
-                  .add(DrawingInProgress(details.localPosition));
+              context.read<WhiteboardBloc>().add(
+                DrawingInProgress(details.localPosition),
+              );
             },
             onPanEnd: (_) {
               context.read<WhiteboardBloc>().add(DrawingEnded());
@@ -54,19 +55,41 @@ class WhiteboardScreen extends StatelessWidget {
         },
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _ColorButton(color: Colors.black),
-            _ColorButton(color: Colors.red),
-            _ColorButton(color: Colors.green),
-            _ColorButton(color: Colors.blue),
-            _StrokeButton(width: 2.0),
-            _StrokeButton(width: 5.0),
-            _StrokeButton(width: 10.0),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () =>
+                    context.read<WhiteboardBloc>().add(EraseModeToggled()),
+                color: context.watch<WhiteboardBloc>().state.isErasing
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
+              ),
+              const _ColorPalette(),
+              const _StrokeSlider(),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _ColorPalette extends StatelessWidget {
+  const _ColorPalette();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ColorButton(color: Colors.black),
+        _ColorButton(color: Colors.red),
+        _ColorButton(color: Colors.green),
+        _ColorButton(color: Colors.blue),
+      ],
     );
   }
 }
@@ -78,24 +101,41 @@ class _ColorButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.circle, color: color),
-      onPressed: () =>
-          context.read<WhiteboardBloc>().add(PenColorChanged(color)),
+    final state = context.watch<WhiteboardBloc>().state;
+    final isSelected = state.penColor == color && !state.isErasing;
+
+    return GestureDetector(
+      onTap: () => context.read<WhiteboardBloc>().add(PenColorChanged(color)),
+      child: Container(
+        height: 32,
+        width: 32,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: isSelected
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                )
+              : null,
+        ),
+      ),
     );
   }
 }
 
-class _StrokeButton extends StatelessWidget {
-  final double width;
-
-  const _StrokeButton({required this.width});
+class _StrokeSlider extends StatelessWidget {
+  const _StrokeSlider();
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.circle, size: width * 2),
-      onPressed: () =>
+    final state = context.watch<WhiteboardBloc>().state;
+
+    return Slider(
+      value: state.strokeWidth,
+      min: 1.0,
+      max: 20.0,
+      onChanged: (width) =>
           context.read<WhiteboardBloc>().add(StrokeWidthChanged(width)),
     );
   }

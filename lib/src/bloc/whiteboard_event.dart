@@ -52,3 +52,5 @@ class DrawingCleared extends WhiteboardEvent {}
 class DrawingUndone extends WhiteboardEvent {}
 
 class DrawingRedone extends WhiteboardEvent {}
+
+class EraseModeToggled extends WhiteboardEvent {}

@@ -8,6 +8,7 @@ class WhiteboardState extends Equatable {
   final List<Drawing> undoneDrawings;
   final Color penColor;
   final double strokeWidth;
+  final bool isErasing;
 
   const WhiteboardState({
     this.status = WhiteboardStatus.initial,
@@ -15,6 +16,7 @@ class WhiteboardState extends Equatable {
     this.undoneDrawings = const [],
     this.penColor = Colors.black,
     this.strokeWidth = 2.0,
+    this.isErasing = false,
   });
 
   WhiteboardState copyWith({
@@ -23,6 +25,7 @@ class WhiteboardState extends Equatable {
     List<Drawing>? undoneDrawings,
     Color? penColor,
     double? strokeWidth,
+    bool? isErasing,
   }) {
     return WhiteboardState(
       status: status ?? this.status,
@@ -30,10 +33,11 @@ class WhiteboardState extends Equatable {
       undoneDrawings: undoneDrawings ?? this.undoneDrawings,
       penColor: penColor ?? this.penColor,
       strokeWidth: strokeWidth ?? this.strokeWidth,
+      isErasing: isErasing ?? this.isErasing,
     );
   }
 
   @override
   List<Object> get props =>
-      [status, drawings, undoneDrawings, penColor, strokeWidth];
+      [status, drawings, undoneDrawings, penColor, strokeWidth, isErasing];
 }
