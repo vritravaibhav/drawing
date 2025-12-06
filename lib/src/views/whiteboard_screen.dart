@@ -61,7 +61,7 @@ class WhiteboardScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Icons.crop_16_9),
                 onPressed: () =>
                     context.read<WhiteboardBloc>().add(EraseModeToggled()),
                 color: context.watch<WhiteboardBloc>().state.isErasing
